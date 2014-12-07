@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MV.ClientApp.DataModel
 {
-    interface MVSim
+    public class MVSim
     {
     }
 }
