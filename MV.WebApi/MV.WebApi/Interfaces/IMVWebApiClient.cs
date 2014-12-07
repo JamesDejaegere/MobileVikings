@@ -10,7 +10,7 @@ namespace MV.WebApi.Interfaces
     public interface IMVWebApiClient
     {
         Task<List<Sim>> GetSimsAsync();
-        Sim_Balance GetSimBalance(string simId);
+        Task<Sim_Balance> GetSimBalanceAsync(string simId);
         List<Usage> GetSimUsage(string simId);
 
     }

@@ -38,11 +38,28 @@ namespace MV.WebApi
         {
             try
             {
-                var response = await ReadResponseAsync(CreateRequest(ApiMethod.Sim_List));
+                var response = await ReadResponseAsync(CreateRequest(ApiMethod.Sim_List, string.Empty));
                 if (response != null)
                 {
                     var sims = ConvertToSimList(response);
                     return sims;
+                }
+                return null;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<Sim_Balance> GetSimBalanceAsync(string simId)
+        {
+            try
+            {
+                var response = await ReadResponseAsync(CreateRequest(ApiMethod.Sim_Balance, simId));
+                if (response != null)
+                {
+                    var simBalance = ConvertToSimBalance(response);
+                    return simBalance;
                 }
                 return null;
             }
@@ -68,7 +85,7 @@ namespace MV.WebApi
             }
             if (content.Length >= 0)
             {
-                return Encoding.Default.GetString(content.ToArray());
+                return Encoding.UTF8.GetString(content.ToArray());
             }
 
             //byte[] result = null;
@@ -81,58 +98,12 @@ namespace MV.WebApi
             return null;
         }
 
-        private List<Sim> ConvertToSimList(string response)
-        {
-            List<Sim> responseMessage = null;
-            try
-            {
-                responseMessage = JsonConvert.DeserializeObject<List<Sim>>(response);
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    //responseMessage = JsonConvert.DeserializeObject<ResponseErrorMessage>(response);
-                }
-                catch (Exception)
-                {
-                    throw;
-                }
-            }
-            return responseMessage;
-        }
 
-        private HttpWebRequest CreateRequest(ApiMethod method)
+        private HttpWebRequest CreateRequest(ApiMethod method, string simId)
         {
             try
             {
-                var url = _apiUrl + _authenticate_basic + "/";
-                switch (method)
-                {
-                    case ApiMethod.Sim_List:
-                        url += _simList + _resultFormat + "?alias=1";
-                        break;
-                    case ApiMethod.Sim_Balance:
-                        break;
-                    case ApiMethod.Sim_Usage:
-                        break;
-                    case ApiMethod.Sim_PricePlan:
-                        break;
-                    case ApiMethod.TopUpHistory:
-                        break;
-                    case ApiMethod.SimCardInfo:
-                        break;
-                    case ApiMethod.VP_Stats:
-                        break;
-                    case ApiMethod.VP_Links:
-                        break;
-                    case ApiMethod.VP_Referals:
-                        break;
-                    default:
-                        url += _simList;
-                        break;
-                }
-                url += _resultFormat;
+                var url = CreateUrl(method, simId);
                 HttpWebRequest request = WebRequest.Create(new Uri(url)) as HttpWebRequest;
                 request.Method = "GET";
                 request.ContentType = "application/json; charset=UTF-8";
@@ -146,9 +117,78 @@ namespace MV.WebApi
             }
         }
 
-        public Sim_Balance GetSimBalance(string simId)
+        private static string CreateUrl(ApiMethod method, string simId)
         {
-            throw new NotImplementedException();
+            var url = _apiUrl + _authenticate_basic + "/";
+            switch (method)
+            {
+                case ApiMethod.Sim_List:
+                    url += _simList + _resultFormat + "?alias=1";
+                    break;
+                case ApiMethod.Sim_Balance:
+                    url += _balance + _resultFormat + "?msisdn" + simId;
+                    break;
+                case ApiMethod.Sim_Usage:
+                    break;
+                case ApiMethod.Sim_PricePlan:
+                    break;
+                case ApiMethod.TopUpHistory:
+                    break;
+                case ApiMethod.SimCardInfo:
+                    break;
+                case ApiMethod.VP_Stats:
+                    break;
+                case ApiMethod.VP_Links:
+                    break;
+                case ApiMethod.VP_Referals:
+                    break;
+                default:
+                    url += _simList;
+                    break;
+            }
+            return url;
+        }
+
+
+        private List<Sim> ConvertToSimList(string response)
+        {
+            List<Sim> simList = null;
+            try
+            {
+                simList = JsonConvert.DeserializeObject<List<Sim>>(response);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    //responseMessage = JsonConvert.DeserializeObject<ResponseErrorMessage>(response);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            return simList;
+        }
+        private Sim_Balance ConvertToSimBalance(string response)
+        {
+            Sim_Balance simBalance = null;
+            try
+            {
+                simBalance = JsonConvert.DeserializeObject<Sim_Balance>(response);
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    //responseMessage = JsonConvert.DeserializeObject<ResponseErrorMessage>(response);
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+            }
+            return simBalance;
         }
 
         public List<Usage> GetSimUsage(string simId)
