@@ -46,7 +46,7 @@ namespace MV.WebApi
                 }
                 return null;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -58,14 +58,26 @@ namespace MV.WebApi
         /// <returns>the response from the httpRequest</returns>
         async private Task<string> ReadResponseAsync(WebRequest request)
         {
-            var webResponse = await request.GetResponseAsync();
-            var stream = await request.GetRequestStreamAsync();
-            byte[] result = null;
-            if (stream != null)
+            var content = new MemoryStream();
+            using (WebResponse webResponse = await request.GetResponseAsync())
             {
-                await stream.ReadAsync(result, 0, (int)stream.Length);
-                return new UnicodeEncoding().GetString(result);
+                using (Stream responseStream = webResponse.GetResponseStream())
+                {
+                    await responseStream.CopyToAsync(content);
+                }
             }
+            if (content.Length >= 0)
+            {
+                return Encoding.Default.GetString(content.ToArray());
+            }
+
+            //byte[] result = null;
+            //var stream = await request.GetRequestStreamAsync();
+            //if (stream != null)
+            //{
+            //    await stream.ReadAsync(result, 0, (int)stream.Length);
+            //}
+
             return null;
         }
 
