@@ -16,9 +16,9 @@ namespace MV.MobileApp.ViewModel
         }
         public MainViewModel()
         {
-            ApplicationName = IsInDesignMode 
-                ? "Mobile Vikings" 
-                : "Mobile Vikings DESIGN";
+            ApplicationName = IsInDesignMode
+                ? "Mobile Vikings DESIGN" 
+                : "Mobile Vikings";
         }
     }
 }
